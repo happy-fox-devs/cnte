@@ -4,18 +4,16 @@ A beautiful, functional, and minimal custom new tab page extension for Google Ch
 
 ## Features
 
-- **Search Engine**: Quick access to your favorite search engine.
-- **Shortcuts**: Customizable quick links to frequently visited websites.
-- **Widgets**: Grid-based layout for personalized widgets.
-- **Modern UI**: Built with React, Tailwind CSS, and Shadcn UI.
+- [x] **Search Engine**: Quick access to your favorite search engine.
+- [x] **Shortcuts**: Customizable quick links to frequently visited websites.
+- [ ] **Widgets**: Grid-based layout for personalized widgets.
 
 ## Tech Stack
 
-- React 19
+- React
 - Vite
 - TypeScript
-- Tailwind CSS 4
-- Emacs / ESLint / Prettier
+- Tailwind CSS
 
 ## Development
 
@@ -32,6 +30,7 @@ pnpm dev
 ```
 
 For a Chrome Extension, the dev server provides a web interface. To test the extension directly in Chrome:
+
 1. Run `pnpm build`
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode"
@@ -46,16 +45,19 @@ pnpm build:upload --type <version-type>
 ```
 
 Available types:
+
 - `patch` or `p`: for backwards-compatible bug fixes (0.0.x)
 - `minor` or `m`: for backwards-compatible new features (0.x.0)
 - `major` or `M`: for breaking changes (x.0.0)
 
 Example:
+
 ```bash
 pnpm build:upload --type p
 ```
 
 This will:
+
 1. Bump the version in `package.json` and `manifest.json`.
 2. Build the extension.
 3. Archive the `dist/` folder into a `.zip` file.
