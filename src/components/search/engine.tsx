@@ -52,7 +52,7 @@ export default function SearchEngine() {
   };
 
   return (
-    <div className="relative z-10 flex justify-center p-6 pt-12">
+    <div className="relative z-20 flex justify-center p-6 pt-12">
       <div className="bg-surface border-border focus-within:border-accent relative flex w-full max-w-[620px] items-center gap-0 rounded-full border p-2 shadow-md transition-all focus-within:shadow">
         <button
           className="relative flex shrink-0 cursor-pointer items-center gap-2 rounded-md bg-none px-2.5 py-2 text-neutral-600 transition-all hover:bg-white/10"
@@ -84,7 +84,7 @@ export default function SearchEngine() {
         <AnimatePresence>
           {open && (
             <motion.ul
-              className="absolute top-[calc(100%+8px)] left-2 z-200 min-w-44 rounded-md border-white/10 bg-[rgba(30,30,38,0.95)] p-2 shadow-lg backdrop-blur-sm [&>li]:hover:bg-white/5 [&>li.active]:bg-[rgba(110,231,183,0.15)] [&>li.active_span]:text-[#6ee7b7]"
+              className="[&>li.active]:bg-accent-dim [&>li.active_span]:text-accent absolute top-[calc(100%+8px)] left-2 z-200 min-w-44 rounded-md border-white/10 bg-[rgba(30,30,38,0.95)] p-2 shadow-lg backdrop-blur-sm [&>li]:hover:bg-white/5"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

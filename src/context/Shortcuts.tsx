@@ -34,7 +34,7 @@ export default function Shortcuts() {
   return (
     <Context value={{ addShortcut, removeShortcut, updateShortcut }}>
       <TooltipProvider>
-        <div className="mx-auto flex justify-center gap-4 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+        <div className="relative z-20 mx-auto flex justify-center gap-4 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
           {shortcuts.map((shortcut) => (
             <Shortcut key={shortcut.id} shortcut={shortcut} />
           ))}
