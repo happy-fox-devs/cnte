@@ -1,12 +1,14 @@
-import { Shortcut } from "@/components/shortcuts/item";
+import { Shortcut, Sortable } from "@/components/shortcuts/item";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { DragDropProvider } from "@dnd-kit/react";
+import { isSortable } from "@dnd-kit/react/sortable";
 import { createContext, useContext } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 type Context = {
   addShortcut: (shortcut: Shortcut) => void;
-  removeShortcut: (id: string) => void;
-  updateShortcut: (id: string, shortcut: Shortcut) => void;
+  removeShortcut: (index: number) => void;
+  updateShortcut: (index: number, shortcut: Shortcut) => void;
 };
 
 const Context = createContext<Context | undefined>(undefined);
@@ -21,25 +23,48 @@ export default function Shortcuts() {
     setShortcuts((prev) => [...prev, shortcut]);
   };
 
-  const removeShortcut = (id: string) => {
-    setShortcuts((prev) => prev.filter((shortcut) => shortcut.id !== id));
+  const removeShortcut = (index: number) => {
+    setShortcuts((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateShortcut = (id: string, shortcut: Shortcut) => {
+  const updateShortcut = (index: number, shortcut: Shortcut) => {
     setShortcuts((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, ...shortcut } : s)),
+      prev.map((s, i) => (i === index ? { ...s, ...shortcut } : s)),
     );
   };
 
   return (
     <Context value={{ addShortcut, removeShortcut, updateShortcut }}>
       <TooltipProvider>
-        <div className="relative z-20 mx-auto flex justify-center gap-4 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-          {shortcuts.map((shortcut) => (
-            <Shortcut key={shortcut.id} shortcut={shortcut} />
-          ))}
-          <Shortcut />
-        </div>
+        <DragDropProvider
+          onDragEnd={(event) => {
+            if (event.canceled) return;
+
+            const { source } = event.operation;
+
+            if (isSortable(source)) {
+              const { initialIndex, index } = source;
+
+              if (initialIndex !== index) {
+                setShortcuts((items) => {
+                  const newItems = [...items];
+                  const [removed] = newItems.splice(initialIndex, 1);
+                  newItems.splice(index, 0, removed);
+                  return newItems;
+                });
+              }
+            }
+          }}
+        >
+          <div className="relative z-20 mx-auto flex flex-wrap justify-center gap-4 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+            {shortcuts.map((shortcut, index) => (
+              <Sortable key={index} index={index}>
+                <Shortcut index={index} shortcut={shortcut} />
+              </Sortable>
+            ))}
+            <Shortcut index={shortcuts.length} />
+          </div>
+        </DragDropProvider>
       </TooltipProvider>
     </Context>
   );

@@ -11,6 +11,8 @@
     "build:upload": "node scripts/release.js"
   },
   "dependencies": {
+    "@dnd-kit/helpers": "^0.3.2",
+    "@dnd-kit/react": "^0.3.2",
     "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/vite": "^4.2.1",
     "autoprefixer": "^10.4.27",

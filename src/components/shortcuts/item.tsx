@@ -1,29 +1,70 @@
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { useApp } from "@/context/App";
 import { useShortcuts } from "@/context/Shortcuts";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { useState } from "react";
-import BasicField from "../ui/basic-field";
-import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { cn } from "@/lib/utils";
+import { useSortable } from "@dnd-kit/react/sortable";
+import { useRef, useState } from "react";
+import { Dialog } from "../ui/dialog";
 import ShortcutAdd from "./add";
 import ShortcutContainer from "./container";
+import ShortcutContextContent from "./context-content";
+import ShortcutDialogContent from "./dialog-content";
 
-export const Shortcut = ({ shortcut }: { shortcut?: Shortcut }) => {
+export const Sortable = ({
+  index,
+  children,
+}: {
+  index: number;
+  children: React.ReactElement<{
+    class: string;
+  }>;
+}) => {
+  const {
+    layout: { isEditing },
+  } = useApp();
+
+  const [element, setElement] = useState<Element | null>(null);
+  const handleRef = useRef<HTMLButtonElement | null>(null);
+  const { isDragging } = useSortable({
+    id: index,
+    index,
+    element,
+    handle: handleRef,
+  });
+
+  return (
+    <div
+      ref={setElement}
+      className={cn(
+        "border-border relative cursor-pointer overflow-hidden rounded-md border transition-all duration-300",
+        {
+          "border-dashed": isEditing || isDragging,
+          "hover:border-accent/50 border-sky-600/50": isEditing,
+          "border-accent": isDragging,
+        },
+      )}
+    >
+      {isEditing && (
+        <div className="absolute top-0 left-0 z-10 size-full bg-transparent transition-all duration-300"></div>
+      )}
+      <div
+        className={cn({
+          "opacity-50": isDragging,
+        })}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export const Shortcut = ({
+  index,
+  shortcut,
+}: {
+  index: number;
+  shortcut?: Shortcut;
+}) => {
   const { removeShortcut, updateShortcut } = useShortcuts();
 
   const [open, setOpen] = useState(false);
@@ -33,9 +74,8 @@ export const Shortcut = ({ shortcut }: { shortcut?: Shortcut }) => {
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!shortcut) return;
 
-    updateShortcut(shortcut.id, { id: shortcut.id, name, url });
+    updateShortcut(index, { name, url });
     setOpen(false);
   };
 
@@ -44,54 +84,33 @@ export const Shortcut = ({ shortcut }: { shortcut?: Shortcut }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <ContextMenu>
-        <ContextMenuTrigger>
+        <ContextMenuTrigger asChild>
           <a href={shortcut.url}>
-            <ShortcutContainer tooltip={shortcut.name} remove={shortcut.id}>
+            <ShortcutContainer tooltip={shortcut.name}>
               <img
                 src={`https://www.google.com/s2/favicons?domain=${shortcut.url}&sz=128`}
                 alt={shortcut.name}
-                className="size-8"
+                className={cn("size-8")}
               />
             </ShortcutContainer>
           </a>
         </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuGroup>
-            <ContextMenuItem onClick={() => setOpen(true)}>
-              <PencilIcon />
-              Edit
-            </ContextMenuItem>
-          </ContextMenuGroup>
-          <ContextMenuSeparator className="bg-black/10" />
-          <ContextMenuGroup>
-            <ContextMenuItem
-              variant="destructive"
-              onClick={() => removeShortcut(shortcut.id)}
-            >
-              <TrashIcon />
-              Delete
-            </ContextMenuItem>
-          </ContextMenuGroup>
-        </ContextMenuContent>
+        <ShortcutContextContent
+          index={index}
+          setOpen={setOpen}
+          removeShortcut={removeShortcut}
+        />
       </ContextMenu>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add shortcut</DialogTitle>
-          <DialogDescription>
-            Add a new shortcut to your shortcuts list.
-          </DialogDescription>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <BasicField name="Name" value={name} onChange={setName} />
-            <BasicField name="URL" value={url} onChange={setUrl} />
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">Add</Button>
-            </DialogFooter>
-          </form>
-        </DialogHeader>
-      </DialogContent>
+      <ShortcutDialogContent
+        type="edit"
+        title="Edit shortcut"
+        description="Edit the shortcut."
+        name={name}
+        url={url}
+        setName={setName}
+        setUrl={setUrl}
+        handleSubmit={handleSubmit}
+      />
     </Dialog>
   );
 };
